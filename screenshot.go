@@ -14,6 +14,7 @@ import (
 	tb "gopkg.in/telebot.v3"
 	"io/ioutil"
 	"os"
+	"time"
 )
 
 var (
@@ -33,13 +34,14 @@ func takeScreenshot(url string, c tb.Context) {
 	}
 	defer service.Stop()
 
-	caps := selenium.Capabilities{"browserName": "chrome"}
+	caps := selenium.Capabilities{"browserName": "Chrome"}
 	chromeCaps := chrome.Capabilities{
 		Path: "",
 		Args: []string{
 			"--headless",
 			"--no-sandbox",
 			"--disable-dev-shm-usage",
+			"--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
 		},
 	}
 	caps.AddChrome(chromeCaps)
@@ -52,6 +54,8 @@ func takeScreenshot(url string, c tb.Context) {
 	if err := wd.Get(url); err != nil {
 		log.Errorln(err)
 	}
+	_, _ = wd.ExecuteScript("window.scrollTo(0, document.body.scrollHeight)", nil)
+	time.Sleep(5 * time.Second)
 
 	var width, _ = wd.ExecuteScript("return document.body.parentNode.scrollWidth", nil)
 	var height, _ = wd.ExecuteScript("return document.body.parentNode.scrollHeight", nil)
